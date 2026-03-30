@@ -1,34 +1,7 @@
 cd C:\290069
 
 #Visual Studio
-**/.vscode/
-**/Debug/
-**/Release/
-**/x64/
-**/x86/
+.vscode/
 
-#Pliki wykonywalne i tymczasowe
-**/*.exe
-**/*.dll
-**/*.obj
-**/*.o
-**/*.ilk
-**/*.pdb
-**/*.exe.manifest
-
-#Pliki uzytkownika vs
-**/*.user
-**/*.suo
-**/*.userosscache
-**/*.sln.docstates
-
-#Foldery build dla wszytskich Lab
-**/Debug/
-**/Release/
-**/x64/
-**/x86/
-
-#Wszytskie pliki exe w podfolderach
-**/*.exe
-**/*.obj
-**/*.o
+#Uzytkownik
+*.exe
