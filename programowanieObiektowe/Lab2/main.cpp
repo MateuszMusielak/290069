@@ -2,293 +2,430 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
-#include <vector>
-#include <map>
-#include <algorithm>
+#define MAX_OSOB 100
 
-
-void wypiszMenu();
-void dodajOsobe(std::vector<Osoba>& osoby, std::map<int,bool>& obecnosci);
-void edytujOsobe(std::vector<Osoba>& osoby);
-void wyswietlOsoby(std::vector<Osoba>& osoby, std::map<int,bool>& obcenosci);
-void zmienObecnosc(std::vector<Osoba>& osoby, std::map<int,bool>& obcenosci);
-void usunOsobe(std::vector<Osoba>& osoby, std::map<int,bool>& obcenosci);
-
-
-
+void wyswietlMenu();
+void dodajOsobe(Osoba* osoby, int* liczbaOsob, int pojemnosc);
+void wyswietlOsoby(Osoba* osoby,bool* listaObecnosci, int liczbaOsob);
+void edytujOsobe(Osoba* osoby, int liczbaOsob);
+void usunOsobe(Osoba* osoby,bool* listaObecnosci, int* liczbaOsob, int pojemnosc);
+void ustawObecnosc(Osoba* osoby, bool* obecnosc, int liczbaOsob);
 
 int main(){
-int wybor=6;
-std::vector<Osoba> osoby;
-std::map<int,bool> obecnosci;
 
+Osoba osoby[MAX_OSOB];
+bool obecnosc[MAX_OSOB] = {false};
+int liczbaOsob=0,pojemnosc = MAX_OSOB;
 
-do{
-    wypiszMenu();
+while(true){
+    int wybor;
+    wyswietlMenu();
+
     std::cin>>wybor;
+    std::cin.ignore();
 
     switch(wybor){
-        case 1:{//Dodawanie
-            dodajOsobe(osoby,obecnosci);
+        case 1:{//Dodawanie osoby
+            dodajOsobe(osoby,&liczbaOsob,pojemnosc);
             break;
         }
-         case 2:{//Edycja
-            edytujOsobe(osoby);
+        case 2:{//Wyswietl osoby
+            wyswietlOsoby(osoby,obecnosc,liczbaOsob);
             break;
         }
-         case 3:{//Wysiwtl
-            wyswietlOsoby(osoby,obecnosci);     
+        case 3:{//Edytowanie osoby
+            edytujOsobe(osoby,liczbaOsob);
             break;
         }
-         case 4:{//Obecnosc
-            zmienObecnosc(osoby,obecnosci);
+        case 4:{//Usuwanie osoby
+            usunOsobe(osoby,obecnosc,&liczbaOsob,pojemnosc);
             break;
         }
-         case 5:{//Usun
-            usunOsobe(osoby,obecnosci);
+        case 5:{//Zmienianie obecnosci
+            ustawObecnosc(osoby,obecnosc,liczbaOsob);
             break;
         }
-         case 6:{//Zamknij
-            exit;
+        case 6:{//zakoncz
+            exit(0);
             break;
         }
-         default:{
-            printf("Nie poprawna wartosc");
+        default:{
+            std::cout<<"Podano niewlascwa opcje\n";
             break;
         }
     }
 
 
 
-}while(true);
+
+}
+
+
+
+
+
 
     return 0;
 }
-
-void wypiszMenu(){
-    printf("1.Dodaj Osobe\n2.Edytuj Osobe\n3.Wypisz liste Osob\n4.Ustaw Obecnosc\n5.Usun Osoben\n6.zamknij\n");
+void wyswietlMenu(){
+    std::cout << "--------MENU--------\n"
+              << "1. Dodaj osobe\n"
+              << "2. Wyswietl osoby\n"
+              << "3. Edytuj osobe\n"
+              << "4. Usun osobe\n"
+              << "5. Zmien obecnosc\n"
+              << "6. Zakoncz\n";
 }
-void dodajOsobe(std::vector<Osoba>& osoby, std::map<int,bool>& obecnosci){
-   std::string imie, nazwisko;
-    int nrIndexu;
-   std::cin.ignore(); 
-   std::cout<<"Imie: "; getline(std::cin,imie);
-   std::cout<<"Nazwisko: "; getline(std::cin, nazwisko);
-   std::cout<<"Nr Indexu: "; std::cin>>nrIndexu;
+void dodajOsobe(Osoba* osoby, int* liczbaOsob, int pojemnosc){
+std::string imie, nazwisko;
+int nrIndexu;
 
-   auto it = find(osoby.begin(),osoby.end(),nrIndexu);
-   if(osoby.end()!=it){
-    std::cout<<"Istnieje juz osoba o takim indexie\n";
+
+//Sprawdzenie czy max
+if(*liczbaOsob >= pojemnosc){
+    std::cout<<"Brak miejsca, max: "<<pojemnosc<<"\n";
+}
+
+//Wczytywanie
+while(true){
+std::cout << "Podaj imie: ";
+getline(std::cin, imie);
+
+ if(imie == "0") {
+    std::cout << "Anulowano.\n";
     return;
-   }
-
-   osoby.push_back(Osoba(imie,nazwisko,nrIndexu));
-   obecnosci[nrIndexu] = false;
-
-
 }
-void edytujOsobe(std::vector<Osoba>& osoby){
-bool kontynuuj = true;
-int ix;
-    if(osoby.empty()){
-        std::cout<<"Brak osob na liscie\n";
-        return;
-    }
 
-while(kontynuuj){
-    std::cout<<"Wybierz osobe do edytowania, 0 - anuluj\n";
-    for(size_t i=0;i<osoby.size();i++){
-        std::cout<<(i+1)<<".";
-        osoby[i].wyswietl();
-    }
-    
-    std::cin>>ix;
-    std::cin.ignore();
+std::cout << "Podaj nazwisko: ";
+getline(std::cin, nazwisko);
 
-    if(ix==0) return;
-
-    if(ix<1||ix>(int)osoby.size()){
-        std::cout<<"nie ma takiej osoby\n";
-    }else{
-        kontynuuj=false;
-    }
-}
-ix=ix-1;
-
-std::cout<<"Jakie dane chcesz edytowac?\n1.Imie\n2.Nazwisko\n3.Index\n4.Wszytsko\n5.anuluj\n";
-int wybor;
-std::cin>>wybor;
+std::cout << "Podaj numer indeksu: ";
+std::cin >> nrIndexu;
 std::cin.ignore();
 
-std::string noweImie,noweNazwisko;
-int nowyIndex;
 
-switch(wybor){
-    case 1:{
-        std::cout<<"Aktualne imie: "<<osoby[ix].getImie()<<"\n";
-        getline(std::cin,noweImie);
-        osoby[ix].setImie(noweImie);
-        std::cout<<"Zmieniono imie\n";
-        break;
-    }
-     case 2:{
-        std::cout<<"Aktualne nazwisko: "<<osoby[ix].getNazwisko()<<"\n";
-        getline(std::cin,noweNazwisko);
-        osoby[ix].setNazwisko(noweNazwisko);
-        std::cout<<"Zmieniono Nazwisko\n";
-        break;
-    }
-     case 3:{
-        std::cout<<"Aktualny index: "<<osoby[ix].getIndex()<<"\n";
-        std::cin>>nowyIndex;
-        std::cin.ignore();
 
-        auto it = find(osoby.begin(),osoby.end(),nowyIndex);
-        if(it==osoby.end()){
-            osoby[ix].setIndex(nowyIndex);
-            std::cout<<"Zmieniono index\n";
-        }else{
-            std::cout<<"Juz istnieje taki index\n";
-        }
-        
-        break;
-    }
-    case 4:{
-        std::cout<<"Aktualne imie: "<<osoby[ix].getImie()<<"\n";
-        getline(std::cin,noweImie);
-        std::cout<<"Aktualne nazwisko: "<<osoby[ix].getNazwisko()<<"\n";
-        getline(std::cin,noweNazwisko);
-        
-        std::cout<<"Aktualny index: "<<osoby[ix].getIndex()<<"\n";
-        std::cin>>nowyIndex;
-        std::cin.ignore();
 
-        auto it = find(osoby.begin(),osoby.end(),nowyIndex);
-       if(it==osoby.end()){
-            osoby[ix].setImie(noweImie);
-         osoby[ix].setNazwisko(noweNazwisko);
-          osoby[ix].setIndex(nowyIndex);
-        std::cout<<"Zmieniono dane\n";
-        }else{
-            std::cout<<"Nie udalo sie zmeinic danych\n";
-        }
-         
-        break;
-    }
-    case 5:{
-        return;
-        break;
-    }
-    default:{
-        std::cout<<"Podaj wlasciwa opcje\n";
+//Walidacja
+if(imie.length()<1 || nazwisko.length()<1){
+    std::cout<<"Imie i nazwisko nie moga byc puste(0 - anuluj)\n";
+    continue;
+}
+bool indexIstnieje = false;
+for(size_t i=0;i<*liczbaOsob;i++){
+    if(osoby[i].getIndex()==nrIndexu){
+        indexIstnieje = true;
         break;
     }
 }
-
-
-
+if(indexIstnieje) {
+std::cout << "Ten numer indeksu juz istnieje!\n";
+continue;
 }
-void wyswietlOsoby(std::vector<Osoba>& osoby, std::map<int,bool>& obcenosci){
-        if(osoby.empty()){
-        std::cout<<"Brak osob na liscie\n";
+break;
+}
+osoby[*liczbaOsob]=Osoba(imie,nazwisko,nrIndexu);
+(*liczbaOsob)++;
+
+std::cout<<"Dodano osobe\n";
+}
+void wyswietlOsoby(Osoba* osoby,bool* listaObecnosci, int liczbaOsob){
+    if(liczbaOsob==0){
+        std::cout<<"Brak osob do wyswietlenia\n";
         return;
     }
 
-    printf("nr : imie : nazwisko : nr Indexu : obecnosc\n");
-for(size_t i = 0; i < osoby.size(); i++) {
-    int nrIndexu = osoby[i].getIndex();
-    
-    
-    auto it = obcenosci.find(nrIndexu);
-    bool czyObecny = (it != obcenosci.end()) ? it->second : false;
-    
-    printf("%d : %s : %s : %d : %s\n", i + 1,
-           osoby[i].getImie().c_str(),
-           osoby[i].getNazwisko().c_str(),
-           nrIndexu,
-           czyObecny ? "obecny" : "nieobecny");
-}
-}
-void zmienObecnosc(std::vector<Osoba>& osoby, std::map<int,bool>& obcenosci){
-int wybor,ix;
-bool kontynuuj = true;
-    if(osoby.empty()){
-        std::cout<<"Brak osob na liscie\n";
-        return;
+    std::cout << "\n--- LISTA OSOB ---\n";
+    for(size_t i=0;i<liczbaOsob;i++){
+         std::cout << (i+1) << ". "
+                  << osoby[i].getImie() << " "
+                  << osoby[i].getNazwisko() << " ("
+                  << osoby[i].getIndex() << ") - "
+                  << (listaObecnosci[i] ? "OBECNY" : "NIEOBECNY")
+                  << "\n";
     }
 
-
-while(kontynuuj){
-    std::cout<<"Komu chcesz zmienic obecnosc\n1.wybierz osobe\n2.wszystkim na obecni\n3.zakoncz\n";
-    std::cin>>wybor;
+}
+void edytujOsobe(Osoba* osoby, int liczbaOsob) {
+    if(liczbaOsob == 0) {
+        std::cout << "Brak osob do edycji.\n";
+        return;
+    }
+    
+int znalezionaPozycja = -1;
+int szukanyNumer;
+while(true){
+    std::cout << "Podaj numer indeksu osoby do edycji (0 - anuluj): ";
+   std::cout << "\n--- LISTA OSOB ---\n";
+for(size_t i = 0; i < liczbaOsob; i++) {
+    std::cout << i+1 << ". ";
+    osoby[i].wyswietl();
+    std::cout << "\n";
+}
+    std::cin >> szukanyNumer;
     std::cin.ignore();
-
-    switch(wybor){
-        case 1:{
-        std::cout<<"Wybierz z listy\n";
-        wyswietlOsoby(osoby,obcenosci);
-        std::cin>>ix;
-        std::cin.ignore();
-
-        if(ix<1||ix>osoby.size()){
-            std::cout<<"nie ma takiej osoby\n";
-        }else{
-           int nrIndexu = osoby[ix-1].getIndex();
-           obcenosci[nrIndexu] = !obcenosci[nrIndexu];
+    
+    if(szukanyNumer == 0) {
+        std::cout << "Anulowano.\n";
+        return;
+    }
+    
+    
+    for(size_t i = 0; i < liczbaOsob; i++) {
+        if(osoby[i].getIndex() == szukanyNumer) {
+            znalezionaPozycja = i;
+            break;
         }
+    }
+    
+    if(znalezionaPozycja == -1) {
+        std::cout << "Nie znaleziono osoby z numerem " << szukanyNumer << "\n";
+        ;
+    }else break;
+}    
+    // 2. Menu edycji
+    while(true) {
+        std::cout << "\n--- EDYCJA OSOBY ---\n";
+        std::cout << "1. Imie: " << osoby[znalezionaPozycja].getImie() << "\n";
+        std::cout << "2. Nazwisko: " << osoby[znalezionaPozycja].getNazwisko() << "\n";
+        std::cout << "3. Numer indeksu: " << osoby[znalezionaPozycja].getIndex() << "\n";
+        std::cout << "4. Wszystkie dane\n";
+        std::cout << "5. Zakoncz edycje\n";
+        std::cout << "Wybor: ";
         
-        break;
-        }
-        case 2:{
-            for(size_t i=0;i<osoby.size();i++){
-                int nrIndexu = osoby[i].getIndex();
-                obcenosci[nrIndexu] = true;
+        int wybor;
+        std::cin >> wybor;
+        std::cin.ignore();
+        
+        switch(wybor) {
+            case 1: {
+                std::string noweImie;
+                std::cout << "Aktualne imie: " << osoby[znalezionaPozycja].getImie() << "\n";
+                std::cout << "Nowe imie: ";
+                do{
+                getline(std::cin, noweImie);
+                }while(noweImie.length()<1);
+                osoby[znalezionaPozycja].setImie(noweImie);
+                
+                break;
             }
-        break;
-        }
-        case 3:{
-            kontynuuj = false;
-        break;
-        }
-        default:{
-            std::cout<<"Podaj poprawna wartosc\n";
-        break;
+            case 2: {
+                std::string noweNazwisko;
+                std::cout << "Aktualne nazwisko: " << osoby[znalezionaPozycja].getNazwisko() << "\n";
+                std::cout << "Nowe nazwisko: ";
+                
+                do{
+                    getline(std::cin, noweNazwisko);
+                }while(noweNazwisko.length()<1);
+                osoby[znalezionaPozycja].setNazwisko(noweNazwisko);
+                break;
+            }
+            case 3: {
+                int nowyNumer;
+                std::cout << "Aktualny numer indeksu: " << osoby[znalezionaPozycja].getIndex() << "\n";
+                
+                while(true) {
+                    std::cout << "Nowy numer indeksu: ";
+                    std::cin >> nowyNumer;
+                    std::cin.ignore();
+                    
+                    if(nowyNumer <= 0) {
+                        std::cout << "Numer indeksu musi byc dodatni!\n";
+                        continue;
+                    }
+                    
+                    
+                    bool istnieje = false;
+                    for(size_t i = 0; i < liczbaOsob; i++) {
+                        if(i != znalezionaPozycja && osoby[i].getIndex() == nowyNumer) {
+                            istnieje = true;
+                            break;
+                        }
+                    }
+                    
+                    if(istnieje) {
+                        std::cout << "Ten numer indeksu juz istnieje!\n";
+                    } else {
+                        break;
+                    }
+                }
+                osoby[znalezionaPozycja].setIndex(nowyNumer);
+                std::cout << "Zmieniono numer indeksu.\n";
+                break;
+            }
+            case 4: {
+                std::string noweImie, noweNazwisko;
+                int nowyNumer;
+                
+                std::cout << "Aktualne dane:\n";
+                std::cout << "Imie: " << osoby[znalezionaPozycja].getImie() << "\n";
+                std::cout << "Nazwisko: " << osoby[znalezionaPozycja].getNazwisko() << "\n";
+                std::cout << "Numer indeksu: " << osoby[znalezionaPozycja].getIndex() << "\n";
+                
+                
+                std::cout << "\nNowe imie: ";
+                
+                do{
+                getline(std::cin, noweImie);
+                }while(noweImie.length()<1);
+                osoby[znalezionaPozycja].setImie(noweImie);
+                
+               
+                std::cout << "Nowe nazwisko: ";
+                do{
+                getline(std::cin, noweNazwisko);
+                }while(noweNazwisko.length()<1);
+                osoby[znalezionaPozycja].setNazwisko(noweNazwisko);
+                
+                
+                while(true) {
+                    std::cout << "Nowy numer indeksu: ";
+                    std::cin >> nowyNumer;
+                    std::cin.ignore();
+                    
+                    if(nowyNumer <= 0) {
+                        std::cout << "Numer indeksu musi byc dodatni!\n";
+                        continue;
+                    }
+                    
+                    bool istnieje = false;
+                    for(size_t i = 0; i < liczbaOsob; i++) {
+                        if(i != znalezionaPozycja && osoby[i].getIndex() == nowyNumer) {
+                            istnieje = true;
+                            break;
+                        }
+                    }
+                    
+                    if(istnieje) {
+                        std::cout << "Ten numer indeksu juz istnieje!\n";
+                    } else {
+                        osoby[znalezionaPozycja].setIndex(nowyNumer);
+                        break;
+                    }
+                }
+                
+                std::cout << "Zmieniono wszystkie dane.\n";
+                break;
+            }
+            case 5: {
+                std::cout << "Zakonczono edycje.\n";
+                return;
+            }
+            default: {
+                std::cout << "Nieprawidlowy wybor. Wybierz 1-5.\n";
+                break;
+            }
         }
     }
-
-
 }
-std::cout<<"zmieniono obecnosc\n";
-
+void usunOsobe(Osoba* osoby,bool* listaObecnosci, int* liczbaOsob, int pojemnosc){
+if(*liczbaOsob==0){
+    std::cout<<"Brak osob do usuniecia\n";
+    return;
 }
-void usunOsobe(std::vector<Osoba>& osoby, std::map<int,bool>& obcenosci){
- bool kontynuuj = true;
- int wybor,ix;
-    if(osoby.empty()){
-        std::cout<<"Brak osob na liscie\n";
+
+int szukanyNumer,znalezionaPozycja = -1;
+while(true){
+    std::cout << "Podaj numer indeksu osoby do edycji (0 - anuluj): ";
+    std::cout << "\n--- LISTA OSOB ---\n";
+for(size_t i = 0; i < *liczbaOsob; i++) {
+    std::cout << i+1 << ". ";
+    osoby[i].wyswietl();
+    std::cout << "\n";
+}
+    std::cin >> szukanyNumer;
+    std::cin.ignore();
+    
+    if(szukanyNumer == 0) {
+        std::cout << "Anulowano.\n";
         return;
     }
-
-while(kontynuuj){
-    std::cout<<"Wybierz osobe do usunieca, 0 - anuluj\n";
-    wyswietlOsoby(osoby,obcenosci);
-    std::cin>>ix;
-    std::cin.ignore();
-
-    if(ix==0) return;
-    if(ix<1||ix>osoby.size()){
-        std::cout<<"nie ma takiej osoby\n";
-    }else{
-        ix=ix-1;
-        int nrIndexu = osoby[ix].getIndex();   
-        osoby.erase(osoby.begin()+ ix);     
-        obcenosci.erase(nrIndexu); 
-    }
-
-
-
-
-
-}
     
+    
+    for(size_t i = 0; i < *liczbaOsob; i++) {
+        if(osoby[i].getIndex() == szukanyNumer) {
+            znalezionaPozycja = i;
+            break;
+        }
+    }
+    
+    if(znalezionaPozycja == -1) {
+        std::cout << "Nie znaleziono osoby z numerem " << szukanyNumer << "\n";
+        
+    }else break;
+}   
+std::cout << "Czy na pewno chcesz usunac: ";
+osoby[znalezionaPozycja].wyswietl();
+std::cout << "? (t/n): ";
+char potwierdzenie;
+std::cin >> potwierdzenie;
+std::cin.ignore();
+    
+if(potwierdzenie != 't' && potwierdzenie != 'T') {
+    std::cout << "Anulowano usuwanie.\n";
+    return;
+} 
+for(size_t i = znalezionaPozycja; i < *liczbaOsob - 1; i++) {
+        osoby[i] = osoby[i + 1];
+        listaObecnosci[i] = listaObecnosci[i + 1];
+}
+(*liczbaOsob)--;
+std::cout << "Usunieto pomyslnie.\n";
+}
+void ustawObecnosc(Osoba* osoby, bool* obecnosc, int liczbaOsob) {
+    if(liczbaOsob == 0) {
+        std::cout << "Brak osob w bazie.\n";
+        return;
+    }
+    
+    std::cout << "\n--- LISTA OBECNOSCI ---\n";
+    for(int i = 0; i < liczbaOsob; i++) {
+        std::cout << i+1 << ". ";
+        osoby[i].wyswietl();
+        std::cout << " - " << (obecnosc[i] ? "OBECNY" : "NIEOBECNY") << "\n";
+    }
+    
+    
+    std::cout << "- Wpisz numer indeksu studenta, aby przełączyć jego obecnosc\n";
+    std::cout << "- Wpisz 0 aby zakonczyc\n";
+    
+    while(true) {
+        int szukanyNumer;
+        std::cout << "Numer indeksu: ";
+        std::cin >> szukanyNumer;
+        std::cin.ignore();
+        
+        if(szukanyNumer == 0) {
+            std::cout << "Zakonczono ustawianie obecnosci\n";
+            break;
+        }
+        
+      
+        int znalezionaPozycja = -1;
+        for(size_t i = 0; i < liczbaOsob; i++) {
+            if(osoby[i].getIndex() == szukanyNumer) {
+                znalezionaPozycja = i;
+                break;
+            }
+        }
+        
+        if(znalezionaPozycja == -1) {
+            std::cout << "Nie znaleziono studenta z numerem " << szukanyNumer << "\n";
+            continue;
+        }
+        
+        
+        obecnosc[znalezionaPozycja] = !obecnosc[znalezionaPozycja];
+        std::cout << "Student: ";
+        osoby[znalezionaPozycja].wyswietl();
+        std::cout << " -> " << (obecnosc[znalezionaPozycja] ? "OBECNY" : "NIEOBECNY") << "\n";
+    }
+    
+    
+    int liczbaObecnych = 0;
+    std::cout << "\n--- PODSUMOWANIE ---\n";
+    for(size_t i = 0; i < liczbaOsob; i++) {
+        if(obecnosc[i]) liczbaObecnych++;
+    }
+    std::cout << "Obecnych: " << liczbaObecnych << "/" << liczbaOsob << "\n";
 }

@@ -10,12 +10,15 @@ class Osoba {
     std::string imie,nazwisko;
 
     public:
+    Osoba();
     Osoba(const std::string& imie, const std::string& nazwisko, int nrIndexu);
+
+    //~Osoba();
 
     //getery, & tylko dla zwracanego pojdenycznej zmienne klasy
     const std::string& getImie() const;
     const std::string& getNazwisko() const;
-    const int& getIndex() const;
+    int getIndex() const;
     void wyswietl() const;
 
     //settery
@@ -23,8 +26,7 @@ class Osoba {
     void setNazwisko(std::string noweNazwisko);
     void setIndex(int nowyIndex);
 
-    bool operator==(int nrIndexu) const { return this->nrIndexu == nrIndexu; }
-
+    
 };
 
 #endif

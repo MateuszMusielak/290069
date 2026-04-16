@@ -1,9 +1,10 @@
 #include "Osoba.h"
 #include <iostream>
 #include <string>
-#include <utility>
 
 //deklaracja klasy wedlug c++ 11
+
+Osoba::Osoba() : imie(""), nazwisko(""), nrIndexu(0) {}
 Osoba::Osoba(const std::string& imie, const std::string& nazwisko, int nrIndexu)
     :imie(imie), nazwisko(nazwisko), nrIndexu(nrIndexu) {}
 
@@ -14,7 +15,7 @@ const std::string& Osoba::getImie() const{
 const std::string& Osoba::getNazwisko() const{
     return nazwisko;
 }
-const int& Osoba::getIndex() const{
+int Osoba::getIndex() const{
     return nrIndexu;
 }
  void Osoba::wyswietl() const{
@@ -30,5 +31,5 @@ void Osoba::setNazwisko(std::string noweNazwisko){
     nazwisko = std::move(noweNazwisko);
 }
 void Osoba::setIndex(int nowyIndex){
-    nrIndexu = std::move(nowyIndex);
+    nrIndexu = nowyIndex;
 }
